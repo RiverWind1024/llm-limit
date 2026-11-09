@@ -142,37 +142,45 @@ export function App({ initialProviderId }: AppProps) {
             </Box>
           ))}
 
-          {snapshot?.windows
-            .filter((win) => win.key !== "monthly" || win.usedPct != null)
-            .map((win) => {
-              if (win.usedPct == null) {
-                return (
-                  <Box key={win.key}>
-                    <Text dimColor>{win.label.padEnd(6)} —  未返回该窗口</Text>
-                  </Box>
-                );
-              }
-              return (
-                <Box key={win.key}>
-                  <Text>
-                    {win.label.padEnd(6)} <Text color={barColor(win.usedPct)}>{progressBar(win.usedPct, barWidth)}</Text>
-                    {"  "}已用 {String(Math.round(win.usedPct)).padStart(3)}%{"  "}剩{" "}
-                    {String(100 - Math.round(win.usedPct)).padStart(3)}%{"  "}
-                  </Text>
-                  <Text dimColor>{win.resetAt ? `重置 ${formatUntil(win.resetAt)}` : ""}</Text>
-                </Box>
-              );
-            })}
+          {snapshot && snapshot.status !== "auth" && snapshot.status !== "error"
+            ? snapshot.windows
+                .filter((win) => win.key !== "monthly" || win.usedPct != null)
+                .map((win) => {
+                  if (win.usedPct == null) {
+                    return (
+                      <Box key={win.key}>
+                        <Text dimColor>{win.label.padEnd(6)} —  未返回该窗口</Text>
+                      </Box>
+                    );
+                  }
+                  return (
+                    <Box key={win.key}>
+                      <Text>
+                        {win.label.padEnd(6)} <Text color={barColor(win.usedPct)}>{progressBar(win.usedPct, barWidth)}</Text>
+                        {"  "}已用 {String(Math.round(win.usedPct)).padStart(3)}%{"  "}剩{" "}
+                        {String(100 - Math.round(win.usedPct)).padStart(3)}%{"  "}
+                      </Text>
+                      <Text dimColor>{win.resetAt ? `重置 ${formatUntil(win.resetAt)}` : ""}</Text>
+                    </Box>
+                  );
+                })
+            : null}
         </Box>
 
-        {snapshot && snapshot.status !== "ok" && snapshot.message ? (
+        {snapshot && snapshot.status === "warn" && snapshot.message ? (
           <Box marginTop={1}>
-            <Text color={snapshot.status === "warn" ? "yellow" : "red"}>! {snapshot.message}</Text>
+            <Text color="yellow">! {snapshot.message}</Text>
+          </Box>
+        ) : null}
+
+        {snapshot && snapshot.status === "error" && snapshot.message ? (
+          <Box marginTop={1}>
+            <Text color="red">! {snapshot.message}</Text>
           </Box>
         ) : null}
 
         {snapshot && (snapshot.status === "auth" || snapshot.status === "error") ? (
-          <Box>
+          <Box marginTop={snapshot.status === "auth" ? 1 : 0}>
             <Text dimColor>{active.authHint}</Text>
           </Box>
         ) : null}

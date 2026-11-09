@@ -106,6 +106,26 @@ llm-limit --json             # 输出所有 provider 的 JSON
 
 各接口的请求、响应和字段映射固定在 [`docs/providers.md`](docs/providers.md)。
 
+### 配置 MiniMax
+
+优先读环境变量，其次读 `mmx` CLI 的配置：
+
+```bash
+# 中国区（platform.minimaxi.com）
+export MINIMAX_CN_API_KEY="sk-..."
+
+# 国际区（platform.minimax.io）
+export MINIMAX_API_KEY="sk-..."
+```
+
+也可以先登录 mmx CLI，程序会自动读取 `~/.mmx/config.json`：
+
+```bash
+mmx auth login
+```
+
+注意：只有 M Plan 订阅 key 才能查到 5 小时/周配额；两个区的 key 不通用。
+
 ## 开发
 
 ```bash
