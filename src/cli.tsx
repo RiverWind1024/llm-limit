@@ -1,6 +1,8 @@
 import "./lib/check-node.js";
 import { render } from "ink";
 import { App } from "./app.js";
+import { runAuth } from "./auth.js";
+import { loadEnvFile } from "./config.js";
 import { runInit } from "./init.js";
 import { findProvider, providers } from "./providers/registry.js";
 import type { ProviderSnapshot } from "./providers/types.js";
@@ -70,6 +72,12 @@ function helpText(): string {
     "  llm-limit <provider> --once  打印一次文本后退出",
     "  llm-limit --init             全局安装并扫描各 provider 凭据",
     "  llm-limit --json             以 JSON 输出所有 provider 的配额",
+    "",
+    "认证:",
+    "  llm-limit auth <provider> <api-key>   保存 API Key",
+    "  llm-limit auth minimax <key> --region cn",
+    "  llm-limit auth list                   列出已保存的 Key",
+    "  llm-limit auth remove <provider>      删除 Key",
     "",
     `provider: ${providers.map((provider) => provider.id).join(", ")}`,
     "",
@@ -156,7 +164,15 @@ async function runTui(initialProviderId?: string): Promise<void> {
 }
 
 async function main(): Promise<void> {
-  const options = parseArgs(process.argv.slice(2));
+  const rawArgs = process.argv.slice(2);
+
+  if (rawArgs[0] === "auth") {
+    await runAuth(rawArgs.slice(1));
+    return;
+  }
+
+  await loadEnvFile();
+  const options = parseArgs(rawArgs);
 
   if (options.help) {
     console.log(helpText());

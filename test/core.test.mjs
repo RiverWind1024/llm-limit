@@ -5,6 +5,7 @@ import { firstNumber, parseTime } from "../dist/lib/parse.js";
 import { formatDuration, formatUntil } from "../dist/lib/time.js";
 import { barColor, balanceColor, formatAmount, formatMoney, progressBar, statusDot } from "../dist/lib/ui.js";
 import { buildWindows, clampPct } from "../dist/providers/types.js";
+import { maskSecret, parseEnvLine } from "../dist/config.js";
 
 test("parseTime 解析 unix 秒", () => {
   assert.equal(parseTime(1_700_000_000)?.toISOString(), "2023-11-14T22:13:20.000Z");
@@ -101,4 +102,19 @@ test("balanceColor 按余额高低变色", () => {
   assert.equal(balanceColor(4.99), "yellow");
   assert.equal(balanceColor(5), "green");
   assert.equal(balanceColor(100), "green");
+});
+
+test("parseEnvLine 解析 KEY=VALUE", () => {
+  assert.deepEqual(parseEnvLine("MINIMAX_API_KEY=sk-123"), { key: "MINIMAX_API_KEY", value: "sk-123" });
+  assert.deepEqual(parseEnvLine('export ZAI_API_KEY="sk-456"'), { key: "ZAI_API_KEY", value: "sk-456" });
+  assert.deepEqual(parseEnvLine("DEEPSEEK_API_KEY='sk-789'"), { key: "DEEPSEEK_API_KEY", value: "sk-789" });
+  assert.equal(parseEnvLine("# comment"), null);
+  assert.equal(parseEnvLine(""), null);
+  assert.equal(parseEnvLine("BAD LINE"), null);
+  assert.equal(parseEnvLine("1INVALID=x"), null);
+});
+
+test("maskSecret 保留首尾并打码中间", () => {
+  assert.equal(maskSecret("sk-1234567890"), "sk-1...7890");
+  assert.equal(maskSecret("short"), "****");
 });

@@ -78,6 +78,7 @@ llm-limit minimax            # 直接打开 MiniMax
 llm-limit minimax --once     # 打印一次文本
 llm-limit --init             # 全局安装 + 扫描各 provider 凭据
 llm-limit --json             # 输出所有 provider 的 JSON
+llm-limit auth minimax sk-...  # 保存 API Key
 ```
 
 快捷键：
@@ -90,6 +91,23 @@ llm-limit --json             # 输出所有 provider 的 JSON
 | `q` / `Esc` / `Ctrl-C` | 退出 |
 
 切换 provider 时有 30 秒缓存；当前 provider 每 60 秒自动刷新。
+
+## 保存 API Key
+
+用 `auth` 子命令把 key 存到 `~/.config/llm-limit/.env`（权限 0600），启动时自动加载：
+
+```bash
+llm-limit auth minimax sk-...                # 国际区
+llm-limit auth minimax sk-... --region cn    # 中国区
+llm-limit auth zai sk-...
+llm-limit auth opencode sk-...
+llm-limit auth deepseek sk-...
+
+llm-limit auth list                          # 查看已保存的 key（打码）
+llm-limit auth remove minimax                # 删除
+```
+
+真实环境变量优先级高于这个文件。Kimi / Codex 使用 OAuth，请执行各自的登录命令。
 
 ## 环境变量
 
@@ -108,7 +126,7 @@ llm-limit --json             # 输出所有 provider 的 JSON
 
 ### 配置 MiniMax
 
-优先读环境变量，其次读 `mmx` CLI 的配置：
+除了 `llm-limit auth minimax <key>`，也可以直接设置环境变量：
 
 ```bash
 # 中国区（platform.minimaxi.com）
