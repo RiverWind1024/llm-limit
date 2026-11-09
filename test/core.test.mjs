@@ -1,0 +1,83 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+
+import { firstNumber, parseTime } from "../dist/lib/parse.js";
+import { formatDuration, formatUntil } from "../dist/lib/time.js";
+import { barColor, progressBar, statusDot } from "../dist/lib/ui.js";
+import { buildWindows, clampPct } from "../dist/providers/types.js";
+
+test("parseTime 解析 unix 秒", () => {
+  assert.equal(parseTime(1_700_000_000)?.toISOString(), "2023-11-14T22:13:20.000Z");
+});
+
+test("parseTime 解析 unix 毫秒", () => {
+  assert.equal(parseTime(1_700_000_000_000)?.toISOString(), "2023-11-14T22:13:20.000Z");
+});
+
+test("parseTime 解析 ISO 字符串", () => {
+  assert.equal(parseTime("2026-11-16T00:00:00.000Z")?.toISOString(), "2026-11-16T00:00:00.000Z");
+});
+
+test("parseTime 无效输入返回 undefined", () => {
+  assert.equal(parseTime(undefined), undefined);
+  assert.equal(parseTime(""), undefined);
+  assert.equal(parseTime("not-a-date"), undefined);
+});
+
+test("firstNumber 跳过非数字", () => {
+  assert.equal(firstNumber(undefined, "12", "x"), 12);
+  assert.equal(firstNumber("abc"), undefined);
+});
+
+test("clampPct 限制在 0-100", () => {
+  assert.equal(clampPct(-5), 0);
+  assert.equal(clampPct(42), 42);
+  assert.equal(clampPct(120), 100);
+  assert.equal(clampPct(Number.NaN), 0);
+});
+
+test("formatDuration 输出中文时长", () => {
+  assert.equal(formatDuration(30_000), "不到 1 分钟");
+  assert.equal(formatDuration(5 * 60_000), "5 分钟");
+  assert.equal(formatDuration(90 * 60_000), "1 小时 30 分");
+  assert.equal(formatDuration(26 * 3_600_000), "1 天 2 小时");
+  assert.equal(formatDuration(0), "已重置");
+});
+
+test("formatUntil 无时间返回占位符", () => {
+  assert.equal(formatUntil(undefined), "—");
+});
+
+test("progressBar 按比例填充", () => {
+  assert.equal(progressBar(0, 10), "░░░░░░░░░░");
+  assert.equal(progressBar(50, 10), "█████░░░░░");
+  assert.equal(progressBar(100, 10), "██████████");
+  assert.equal(progressBar(150, 10), "██████████");
+});
+
+test("barColor 使用 60/85 阈值", () => {
+  assert.equal(barColor(0), "green");
+  assert.equal(barColor(59.9), "green");
+  assert.equal(barColor(60), "yellow");
+  assert.equal(barColor(84.9), "yellow");
+  assert.equal(barColor(85), "red");
+});
+
+test("statusDot 区分状态", () => {
+  assert.deepEqual(statusDot(undefined), { symbol: "○", color: "gray" });
+  assert.deepEqual(statusDot({ status: "ok" }), { symbol: "●", color: "green" });
+  assert.deepEqual(statusDot({ status: "auth" }), { symbol: "○", color: "red" });
+  assert.deepEqual(statusDot({ status: "error" }), { symbol: "●", color: "red" });
+});
+
+test("buildWindows 固定顺序并补齐缺失窗口", () => {
+  const windows = buildWindows({ "5h": { usedPct: 10 } });
+  assert.deepEqual(
+    windows.map((win) => win.key),
+    ["5h", "weekly", "monthly"],
+  );
+  assert.equal(windows[0].usedPct, 10);
+  assert.equal(windows[0].label, "5 小时");
+  assert.equal(windows[1].usedPct, null);
+  assert.equal(windows[2].label, "本月");
+});

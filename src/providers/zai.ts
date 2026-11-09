@@ -1,6 +1,6 @@
 import { envEntry, envValue } from "../lib/credentials.js";
 import { describeError, getJSON } from "../lib/http.js";
-import { asArray, asRecord, firstNumber, parseTime } from "../lib/parse.js";
+import { firstNumber, parseTime } from "../lib/parse.js";
 import { buildWindows, clampPct, emptySnapshot, type CredentialStatus, type ProviderDef, type ProviderSnapshot } from "./types.js";
 
 const ZAI_URL = "https://api.z.ai/api/monitor/usage/quota/limit";

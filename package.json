@@ -8,14 +8,32 @@
   "engines": {
     "node": ">=20"
   },
+  "keywords": [
+    "cli",
+    "llm",
+    "quota",
+    "usage",
+    "minimax",
+    "opencode",
+    "codex"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RiverWind1024/llm-limit.git"
+  },
+  "homepage": "https://github.com/RiverWind1024/llm-limit#readme",
+  "bugs": {
+    "url": "https://github.com/RiverWind1024/llm-limit/issues"
+  },
   "bin": {
     "llm-limit": "bin/llm-limit.mjs"
   },
   "scripts": {
     "dev": "NODE_OPTIONS=--no-warnings tsx src/cli.tsx",
     "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "npm run build && node --no-warnings --test test/*.test.mjs",
     "prepare": "npm run build",
-    "test": "tsc -p tsconfig.json --noEmit",
     "start": "node --no-warnings dist/cli.js"
   },
   "dependencies": {

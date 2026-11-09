@@ -2,7 +2,7 @@ import path from "node:path";
 
 import { envValue, home, opencodeAccountKey, opencodeAuthKey, readJson } from "../lib/credentials.js";
 import { bearer, describeError, getJSON, HttpError } from "../lib/http.js";
-import { firstNumber, parseTime } from "../lib/parse.js";
+import { parseTime } from "../lib/parse.js";
 import { buildWindows, clampPct, emptySnapshot, type CredentialStatus, type ProviderDef, type ProviderSnapshot } from "./types.js";
 
 const GLOBAL_BASE = "https://api.minimax.io";

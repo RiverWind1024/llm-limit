@@ -2,7 +2,7 @@ import path from "node:path";
 
 import { envValue, home, newestJsonFile, readJson, tildify } from "../lib/credentials.js";
 import { bearer, describeError, getJSON } from "../lib/http.js";
-import { asRecord, firstNumber, parseTime } from "../lib/parse.js";
+import { firstNumber, parseTime } from "../lib/parse.js";
 import { buildWindows, clampPct, emptySnapshot, type CredentialStatus, type ProviderDef, type ProviderSnapshot } from "./types.js";
 
 const DEFAULT_BASE = "https://api.kimi.com/coding/v1";

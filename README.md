@@ -21,13 +21,15 @@
 
 ## 支持情况
 
-| Provider | 5 小时 | 周 | 月 | 凭据来源 | 状态 |
-| --- | --- | --- | --- | --- | --- |
-| MiniMax | ✅ | ✅ | — | `MINIMAX_*_API_KEY`、`~/.mmx/config.json`、opencode 凭据 | 已实测 |
-| Z.AI GLM | ✅ | ✅ | — | `ZAI_API_KEY` | 待实测 |
-| Kimi Code | ✅ | ✅ | ✅ | `~/.kimi-code/credentials` | 待实测 |
-| Codex | ✅ | ✅ | — | `~/.codex/auth.json` | 待实测 |
-| OpenCode Go | ✅ | ✅ | ✅ | `OPENCODE_API_KEY`、`opencode.db` | 已实测 |
+| # | Provider | 5 小时 | 周 | 月 | 凭据来源 | 验证状态 |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | MiniMax | ✅ | ✅ | — | `MINIMAX_*_API_KEY`、`~/.mmx/config.json`、opencode 凭据 | ✅ 已验证 |
+| 2 | Z.AI GLM | ✅ | ✅ | — | `ZAI_API_KEY` | ⏳ 未验证 |
+| 3 | Kimi Code | ✅ | ✅ | ✅ | `~/.kimi-code/credentials` | ⏳ 未验证 |
+| 4 | Codex | ✅ | ✅ | — | `~/.codex/auth.json` | ✅ 已验证 |
+| 5 | OpenCode Go | ✅ | ✅ | ✅ | `OPENCODE_API_KEY`、`opencode.db` | ✅ 已验证 |
+
+“✅ 已验证”表示用真实账号跑通了请求和解析；“⏳ 未验证”表示已按接口实现，但还没有真实账号验证，实际响应有出入时可能需要微调。
 
 月度窗口只有 provider 返回时才显示，后续再扩展。
 
@@ -106,6 +108,8 @@ llm-limit --json             # 输出所有 provider 的 JSON
 ```bash
 npm run dev       # tsx 直接跑源码
 npm run build     # tsc 编译到 dist/
+npm run typecheck # 只做类型检查
+npm run test      # 类型检查 + 单元测试
 npm run start     # 运行编译产物
 ```
 
@@ -125,6 +129,8 @@ src/
     types.ts              统一快照模型
     registry.ts           provider 列表
     minimax.ts / zai.ts / kimi.ts / codex.ts / opencode.ts
+test/
+  core.test.mjs           解析、格式化、颜色阈值等单元测试
 ```
 
 ## 颜色规则
@@ -165,3 +171,7 @@ src/
 - 只读取凭据，不写回、不打印 key。
 - 除 MiniMax 和 OpenCode Go 外的额度接口来自各 CLI 的内部实现，厂商调整后可能需要更新解析逻辑。
 - 本项目只做额度展示，不做 token / 费用统计。
+
+## License
+
+MIT
