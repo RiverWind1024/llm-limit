@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // 用 --no-warnings 启动真正的 CLI，避免 node:sqlite 的 ExperimentalWarning 污染 TUI。
 import { spawn } from "node:child_process";
+import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
 const major = Number(process.versions.node.split(".")[0]);
@@ -11,6 +12,12 @@ if (!Number.isFinite(major) || major < 20) {
 }
 
 const entry = fileURLToPath(new URL("../dist/cli.js", import.meta.url));
+if (!existsSync(entry)) {
+  console.error("llm-limit 尚未构建（缺少 dist/cli.js）。");
+  console.error("请在项目目录执行：npm install");
+  process.exit(1);
+}
+
 const child = spawn(process.execPath, ["--no-warnings", entry, ...process.argv.slice(2)], {
   stdio: "inherit",
 });

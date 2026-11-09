@@ -16,7 +16,30 @@
  │ 本周     ████████████░░░░░░░░░░░░  已用  67%  剩  33%  重置 3 天 2 小时
  ╰──────────────────────────────────────────────────────────────────────╯
 
- ←/→ 切换   r 刷新   1-5 直达   q 退出   自动刷新 60s
+ ←/→ 切换   r 刷新   1-6 直达   q 退出   自动刷新 60s
+```
+
+## 快速开始
+
+```bash
+git clone https://github.com/RiverWind1024/llm-limit.git
+cd llm-limit
+./install.sh
+```
+
+脚本会安装依赖、全局安装并扫描本机凭据。完成后在任意目录运行 `llm-limit`。
+
+不想用脚本，就手动执行：
+
+```bash
+npm install
+npm run dev -- --init
+```
+
+`--init` 会自动完成全局安装并检测各 provider 的凭据。首次配置 Key：
+
+```bash
+llm-limit auth minimax sk-...
 ```
 
 ## 支持情况
