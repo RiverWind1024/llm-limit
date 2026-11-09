@@ -6,6 +6,8 @@
 
 所有 `percent` 统一按 **已用百分比**（0-100）展示；`resetsAt` 统一换算成本地时间。
 
+**路径约定**：OpenCode 的目录遵循 XDG，先查 `$XDG_DATA_HOME/opencode` / `$XDG_CONFIG_HOME/opencode`，未设置时回退到 `~/.local/share/opencode` / `~/.config/opencode`。下文用 `<data>`、`<config>` 表示。
+
 ---
 
 ## MiniMax
@@ -20,7 +22,7 @@
   1. `MINIMAX_CN_API_KEY` → 中国区
   2. `MINIMAX_API_KEY` → 国际区
   3. `~/.mmx/config.json` 的 `api_key` + `region`
-  4. `~/.local/share/opencode/auth.json` / `account.json` 里 `minimax-cn-coding-plan` 的 key
+  4. `<data>/auth.json` / `<data>/account.json` 里 `minimax-cn-coding-plan` 的 key
 
 **响应（实测，2026-11）**
 
@@ -192,9 +194,9 @@ OpenCode Go 订阅配额，官方支持用 API Key 查询（实测可用）。
 - **认证**：`Authorization: Bearer <API key>`
 - **凭据读取顺序**
   1. `OPENCODE_API_KEY`
-  2. `~/.local/share/opencode/opencode.db` → `credential` 表，`integration_id = 'opencode-go' AND active = 1`，`json(value).key`
-  3. `~/.config/opencode/auth.json` / `~/.local/share/opencode/auth.json` 的 `opencode-go.key`
-  4. `~/.config/opencode/opencode.json` 的 `provider.opencode-go.options.apiKey`
+  2. `<data>/opencode.db` → `credential` 表，`integration_id = 'opencode-go' AND active = 1`，`json(value).key`
+  3. `<data>/auth.json`、`<config>/auth.json` 的 `opencode-go.key`
+  4. `<config>/opencode.jsonc` 或 `<config>/opencode.json`：V2 的 `providers.opencode-go.settings.apiKey`，兼容 V1 的 `provider["opencode-go"].options.apiKey`
 
 **响应（实测，2026-11）**
 
@@ -230,8 +232,8 @@ OpenCode Go 订阅配额，官方支持用 API Key 查询（实测可用）。
 - **认证**：`Authorization: Bearer <API key>`，`Accept: application/json`
 - **凭据读取顺序**
   1. `DEEPSEEK_API_KEY`
-  2. `~/.local/share/opencode/auth.json` 的 `deepseek.key`
-  3. `~/.local/share/opencode/account.json` 里 `serviceID = "deepseek"` 的 credential
+  2. `<data>/auth.json` 的 `deepseek.key`
+  3. `<data>/account.json` 里 `serviceID = "deepseek"` 的 credential
 - **Base URL**：`DEEPSEEK_BASE_URL` 可覆盖
 
 **响应（实测，2026-11）**

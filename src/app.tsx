@@ -181,7 +181,9 @@ export function App({ initialProviderId }: AppProps) {
 
         {snapshot && (snapshot.status === "auth" || snapshot.status === "error") ? (
           <Box marginTop={snapshot.status === "auth" ? 1 : 0}>
-            <Text dimColor>{active.authHint}</Text>
+            <Text dimColor>
+              {snapshot.status === "auth" ? (snapshot.message ?? active.authHint) : active.authHint}
+            </Text>
           </Box>
         ) : null}
       </Box>

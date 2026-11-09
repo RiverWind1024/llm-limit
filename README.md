@@ -91,7 +91,7 @@ npm run dev -- minimax        # 开发模式
 node bin/llm-limit.mjs        # 使用已编译产物
 ```
 
-程序里的凭据和配置都走绝对路径（`~/.mmx`、`~/.codex`、`~/.local/share/opencode` 等），所以在哪个目录运行结果都一样。
+程序里的凭据和配置都走绝对路径（`~/.mmx`、`~/.codex`、OpenCode 的 `$XDG_DATA_HOME` / `$XDG_CONFIG_HOME` 等），所以在哪个目录运行结果都一样。
 
 ## 使用
 

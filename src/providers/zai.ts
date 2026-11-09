@@ -5,6 +5,8 @@ import { buildWindows, clampPct, emptySnapshot, type CredentialStatus, type Prov
 
 const ZAI_URL = "https://api.z.ai/api/monitor/usage/quota/limit";
 const ZHIPU_URL = "https://bigmodel.cn/api/monitor/usage/quota/limit";
+const AUTH_HINT =
+  "未找到 Z.AI 凭据。执行 llm-limit auth zai <key>，或设置 ZAI_API_KEY（中国区加 ZAI_REGION=cn）";
 
 /**
  * Z.AI 的 quota 接口不在公开 API 文档里，是订阅管理页内部使用的。
@@ -55,7 +57,7 @@ function pickLimits(body: ZaiEnvelope): ZaiLimit[] {
 async function fetchZai(signal?: AbortSignal): Promise<ProviderSnapshot> {
   const auth = resolveAuth();
   if (!auth) {
-    return emptySnapshot("zai", "Z.AI", "auth", "未找到 Z.AI 凭据。设置 ZAI_API_KEY（中国区加 ZAI_REGION=cn）。");
+    return emptySnapshot("zai", "Z.AI", "auth", AUTH_HINT);
   }
 
   try {
@@ -132,7 +134,7 @@ async function fetchZai(signal?: AbortSignal): Promise<ProviderSnapshot> {
 async function detectZai(): Promise<CredentialStatus> {
   const auth = resolveAuth();
   if (!auth) {
-    return { available: false, hint: "设置 ZAI_API_KEY（中国区加 ZAI_REGION=cn）" };
+    return { available: false, hint: AUTH_HINT };
   }
   return { available: true, source: auth.source, detail: auth.account };
 }
@@ -140,7 +142,7 @@ async function detectZai(): Promise<CredentialStatus> {
 export const zaiProvider: ProviderDef = {
   id: "zai",
   name: "Z.AI GLM",
-  authHint: "设置 ZAI_API_KEY（中国区另设 ZAI_REGION=cn）",
+  authHint: AUTH_HINT,
   detect: detectZai,
   fetch: fetchZai,
 };

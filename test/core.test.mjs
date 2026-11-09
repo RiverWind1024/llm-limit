@@ -6,6 +6,7 @@ import { formatDuration, formatUntil } from "../dist/lib/time.js";
 import { barColor, balanceColor, formatAmount, formatMoney, progressBar, statusDot } from "../dist/lib/ui.js";
 import { buildWindows, clampPct } from "../dist/providers/types.js";
 import { maskSecret, parseEnvLine } from "../dist/config.js";
+import { opencodeConfigDirs, opencodeDataDirs, stripJsonc } from "../dist/lib/credentials.js";
 
 test("parseTime 解析 unix 秒", () => {
   assert.equal(parseTime(1_700_000_000)?.toISOString(), "2023-11-14T22:13:20.000Z");
@@ -117,4 +118,33 @@ test("parseEnvLine 解析 KEY=VALUE", () => {
 test("maskSecret 保留首尾并打码中间", () => {
   assert.equal(maskSecret("sk-1234567890"), "sk-1...7890");
   assert.equal(maskSecret("short"), "****");
+});
+
+test("stripJsonc 去除注释和尾逗号", () => {
+  const input = `{
+    // 行注释
+    "url": "https://example.com/a//b",
+    /* 块注释 */
+    "list": [1, 2, 3,],
+  }`;
+  assert.deepEqual(JSON.parse(stripJsonc(input)), {
+    url: "https://example.com/a//b",
+    list: [1, 2, 3],
+  });
+});
+
+test("opencode 目录候选优先使用 XDG", () => {
+  const savedConfig = process.env.XDG_CONFIG_HOME;
+  const savedData = process.env.XDG_DATA_HOME;
+  process.env.XDG_CONFIG_HOME = "/tmp/llm-limit-xdg-config";
+  process.env.XDG_DATA_HOME = "/tmp/llm-limit-xdg-data";
+  try {
+    assert.equal(opencodeConfigDirs()[0], "/tmp/llm-limit-xdg-config/opencode");
+    assert.equal(opencodeDataDirs()[0], "/tmp/llm-limit-xdg-data/opencode");
+  } finally {
+    if (savedConfig === undefined) delete process.env.XDG_CONFIG_HOME;
+    else process.env.XDG_CONFIG_HOME = savedConfig;
+    if (savedData === undefined) delete process.env.XDG_DATA_HOME;
+    else process.env.XDG_DATA_HOME = savedData;
+  }
 });

@@ -1,11 +1,22 @@
 import path from "node:path";
 
-import { envEntry, home, readJson, tildify } from "../lib/credentials.js";
+import {
+  envEntry,
+  fileExists,
+  opencodeAuthFiles,
+  opencodeConfigDirs,
+  opencodeDataDirs,
+  readJson,
+  readJsonc,
+  tildify,
+} from "../lib/credentials.js";
 import { bearer, describeError, getJSON } from "../lib/http.js";
 import { asRecord, firstNumber, parseTime } from "../lib/parse.js";
 import { buildWindows, clampPct, emptySnapshot, type CredentialStatus, type ProviderDef, type ProviderSnapshot } from "./types.js";
 
 const USAGE_URL = "https://opencode.ai/zen/go/v1/usage";
+const AUTH_HINT =
+  "未找到 opencode-go 的 API Key。执行 llm-limit auth opencode <key>，或设置 OPENCODE_API_KEY；也可以先 opencode auth login opencode-go";
 
 interface GoWindow {
   status?: string;
@@ -28,45 +39,65 @@ interface ResolvedKey {
 
 /** 从 opencode.db 的 credential 表读取 opencode-go 的 API Key。 */
 async function keyFromOpencodeDB(): Promise<ResolvedKey | undefined> {
-  const dbPath = path.join(home(), ".local/share/opencode/opencode.db");
+  let sqlite: typeof import("node:sqlite");
   try {
     // 动态导入，避免 Node 不支持时整个 CLI 启动失败。
-    const { DatabaseSync } = await import("node:sqlite");
-    const db = new DatabaseSync(dbPath, { readOnly: true });
-    try {
-      const row = db
-        .prepare("select value from credential where integration_id = 'opencode-go' and active = 1 limit 1")
-        .get() as { value?: string } | undefined;
-      if (!row?.value) return undefined;
-      const parsed = JSON.parse(row.value) as { key?: string };
-      return parsed.key ? { key: parsed.key, source: `${tildify(dbPath)} (credential)` } : undefined;
-    } finally {
-      db.close();
-    }
+    sqlite = await import("node:sqlite");
   } catch {
     return undefined;
   }
+
+  for (const dir of opencodeDataDirs()) {
+    const dbPath = path.join(dir, "opencode.db");
+    if (!(await fileExists(dbPath))) continue;
+
+    let db: import("node:sqlite").DatabaseSync | undefined;
+    try {
+      db = new sqlite.DatabaseSync(dbPath, { readOnly: true });
+      const row = db
+        .prepare("select value from credential where integration_id = 'opencode-go' and active = 1 limit 1")
+        .get() as { value?: string } | undefined;
+      if (!row?.value) continue;
+      const parsed = JSON.parse(row.value) as { key?: string };
+      if (parsed.key) return { key: parsed.key, source: `${tildify(dbPath)} (credential)` };
+    } catch {
+      // 打不开或查询失败时尝试下一个候选
+    } finally {
+      db?.close();
+    }
+  }
+  return undefined;
+}
+
+/** OpenCode 配置里的 provider API Key：兼容 V2 的 providers[].settings 和 V1 的 provider[].options。 */
+interface ConfigFile {
+  provider?: Record<string, { options?: { apiKey?: string } }>;
+  providers?: Record<string, { settings?: { apiKey?: string } }>;
+}
+
+function configApiKey(config: ConfigFile | null): string | undefined {
+  for (const id of ["opencode-go", "opencode"]) {
+    const key = config?.providers?.[id]?.settings?.apiKey ?? config?.provider?.[id]?.options?.apiKey;
+    if (key) return key;
+  }
+  return undefined;
 }
 
 async function keyFromConfigFiles(): Promise<ResolvedKey | undefined> {
   type AuthFile = Record<string, { key?: string }>;
-  type ConfigFile = {
-    provider?: Record<string, { options?: { apiKey?: string } }>;
-  };
 
-  for (const dir of [path.join(home(), ".config/opencode"), path.join(home(), ".local/share/opencode")]) {
-    const file = path.join(dir, "auth.json");
+  for (const file of opencodeAuthFiles()) {
     const auth = await readJson<AuthFile>(file);
     const key = auth?.["opencode-go"]?.key;
     if (key) return { key, source: tildify(file) };
   }
 
-  for (const dir of [path.join(home(), ".config/opencode"), path.join(home(), ".local/share/opencode")]) {
-    const file = path.join(dir, "opencode.json");
-    const config = await readJson<ConfigFile>(file);
-    const key =
-      config?.provider?.["opencode-go"]?.options?.apiKey ?? config?.provider?.["opencode"]?.options?.apiKey;
-    if (key) return { key, source: tildify(file) };
+  for (const dir of opencodeConfigDirs()) {
+    for (const name of ["opencode.jsonc", "opencode.json"]) {
+      const file = path.join(dir, name);
+      const key = configApiKey(await readJsonc<ConfigFile>(file));
+      if (key) return { key, source: tildify(file) };
+    }
   }
 
   return undefined;
@@ -81,10 +112,7 @@ async function resolveKey(): Promise<ResolvedKey | undefined> {
 async function detectOpencode(): Promise<CredentialStatus> {
   const found = await resolveKey();
   if (!found) {
-    return {
-      available: false,
-      hint: "未找到 opencode-go 的 API Key。设置 OPENCODE_API_KEY，或执行 opencode auth login opencode-go",
-    };
+    return { available: false, hint: AUTH_HINT };
   }
   return { available: true, source: found.source };
 }
@@ -102,12 +130,7 @@ function windowFrom(raw: GoWindow | undefined): { usedPct: number | null; resetA
 async function fetchOpencode(signal?: AbortSignal): Promise<ProviderSnapshot> {
   const found = await resolveKey();
   if (!found) {
-    return emptySnapshot(
-      "opencode",
-      "OpenCode Go",
-      "auth",
-      "未找到 opencode-go 的 API Key。设置 OPENCODE_API_KEY，或执行 opencode auth login opencode-go。",
-    );
+    return emptySnapshot("opencode", "OpenCode Go", "auth", AUTH_HINT);
   }
 
   try {
@@ -147,7 +170,7 @@ async function fetchOpencode(signal?: AbortSignal): Promise<ProviderSnapshot> {
 export const opencodeProvider: ProviderDef = {
   id: "opencode",
   name: "OpenCode Go",
-  authHint: "设置 OPENCODE_API_KEY，或执行 opencode auth login opencode-go",
+  authHint: AUTH_HINT,
   detect: detectOpencode,
   fetch: fetchOpencode,
 };

@@ -7,6 +7,8 @@ import { buildWindows, clampPct, emptySnapshot, type CredentialStatus, type Prov
 
 const GLOBAL_BASE = "https://api.minimax.io";
 const CN_BASE = "https://api.minimax.cn";
+const AUTH_HINT =
+  "未找到 MiniMax 凭据。执行 llm-limit auth minimax <key>（中国区加 --region cn），或设置 MINIMAX_API_KEY / MINIMAX_CN_API_KEY、登录 mmx CLI";
 
 interface MiniMaxBucket {
   model_name?: string;
@@ -61,13 +63,13 @@ async function resolveAuth(): Promise<MiniMaxAuth | null> {
   const opencodeCN =
     (await opencodeAuthKey("minimax-cn-coding-plan")) ?? (await opencodeAccountKey("minimax-cn-coding-plan"));
   if (opencodeCN) {
-    return { key: opencodeCN, baseUrl: CN_BASE, account: "minimax-cn", source: "opencode 凭据" };
+    return { key: opencodeCN.key, baseUrl: CN_BASE, account: "minimax-cn", source: opencodeCN.source };
   }
 
   const opencodeGlobal =
     (await opencodeAuthKey("minimax-coding-plan")) ?? (await opencodeAccountKey("minimax-coding-plan"));
   if (opencodeGlobal) {
-    return { key: opencodeGlobal, baseUrl: GLOBAL_BASE, account: "minimax", source: "opencode 凭据" };
+    return { key: opencodeGlobal.key, baseUrl: GLOBAL_BASE, account: "minimax", source: opencodeGlobal.source };
   }
 
   return null;
@@ -97,12 +99,7 @@ function bucketNotInPlan(bucket: MiniMaxBucket): boolean {
 async function fetchMiniMax(signal?: AbortSignal): Promise<ProviderSnapshot> {
   const auth = await resolveAuth();
   if (!auth) {
-    return emptySnapshot(
-      "minimax",
-      "MiniMax",
-      "auth",
-      "未找到 MiniMax 凭据。设置 MINIMAX_API_KEY，或先登录 mmx CLI。",
-    );
+    return emptySnapshot("minimax", "MiniMax", "auth", AUTH_HINT);
   }
 
   try {
@@ -173,7 +170,7 @@ async function detectMiniMax(): Promise<CredentialStatus> {
   if (!auth) {
     return {
       available: false,
-      hint: "设置 MINIMAX_API_KEY / MINIMAX_CN_API_KEY，或登录 mmx CLI",
+      hint: AUTH_HINT,
     };
   }
   return { available: true, source: auth.source, detail: auth.account };
@@ -182,7 +179,7 @@ async function detectMiniMax(): Promise<CredentialStatus> {
 export const minimaxProvider: ProviderDef = {
   id: "minimax",
   name: "MiniMax",
-  authHint: "设置 MINIMAX_API_KEY / MINIMAX_CN_API_KEY，或登录 mmx CLI",
+  authHint: AUTH_HINT,
   detect: detectMiniMax,
   fetch: fetchMiniMax,
 };

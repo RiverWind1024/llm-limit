@@ -6,6 +6,8 @@ import { firstNumber, parseTime } from "../lib/parse.js";
 import { buildWindows, clampPct, emptySnapshot, type CredentialStatus, type ProviderDef, type ProviderSnapshot } from "./types.js";
 
 const DEFAULT_BASE = "https://api.kimi.com/coding/v1";
+const AUTH_HINT = "Kimi 使用 OAuth，请先登录 kimi CLI（~/.kimi-code/credentials），或设置 KIMI_CREDENTIALS_PATH";
+const EXPIRED_HINT = "Kimi Code access token 已过期，请重新登录 kimi CLI";
 
 interface KimiCredentials {
   access_token?: string;
@@ -55,11 +57,11 @@ async function findCredentials(): Promise<{ creds: KimiCredentials; file: string
 async function detectKimi(): Promise<CredentialStatus> {
   const found = await findCredentials();
   if (!found?.creds.access_token) {
-    return { available: false, hint: "未找到凭据，先登录 kimi CLI（~/.kimi-code/credentials）" };
+    return { available: false, hint: AUTH_HINT };
   }
   const expired = found.creds.expires_at != null && Date.now() / 1000 >= found.creds.expires_at;
   if (expired) {
-    return { available: false, source: tildify(found.file), hint: "access token 已过期，请重新登录 kimi CLI" };
+    return { available: false, source: tildify(found.file), hint: EXPIRED_HINT };
   }
   return { available: true, source: tildify(found.file) };
 }
@@ -84,16 +86,11 @@ async function fetchKimi(signal?: AbortSignal): Promise<ProviderSnapshot> {
   const found = await findCredentials();
   const token = found?.creds.access_token;
   if (!token) {
-    return emptySnapshot(
-      "kimi",
-      "Kimi Code",
-      "auth",
-      "未找到 Kimi Code 凭据。先登录 kimi CLI（~/.kimi-code/credentials）。",
-    );
+    return emptySnapshot("kimi", "Kimi Code", "auth", AUTH_HINT);
   }
   const credentials = found.creds;
   if (credentials.expires_at && Date.now() / 1000 >= credentials.expires_at) {
-    return emptySnapshot("kimi", "Kimi Code", "auth", "Kimi Code access token 已过期，请重新登录 kimi CLI。");
+    return emptySnapshot("kimi", "Kimi Code", "auth", EXPIRED_HINT);
   }
 
   const baseUrl = (envValue("KIMI_BASE_URL") ?? DEFAULT_BASE).replace(/\/+$/, "");
@@ -154,7 +151,7 @@ async function fetchKimi(signal?: AbortSignal): Promise<ProviderSnapshot> {
 export const kimiProvider: ProviderDef = {
   id: "kimi",
   name: "Kimi Code",
-  authHint: "先登录 kimi CLI，或设置 KIMI_CREDENTIALS_PATH",
+  authHint: AUTH_HINT,
   detect: detectKimi,
   fetch: fetchKimi,
 };

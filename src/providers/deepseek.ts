@@ -4,6 +4,7 @@ import { firstNumber } from "../lib/parse.js";
 import type { BalanceInfo, CredentialStatus, ProviderDef, ProviderSnapshot } from "./types.js";
 
 const DEFAULT_BASE = "https://api.deepseek.com";
+const AUTH_HINT = "未找到 DeepSeek API Key。执行 llm-limit auth deepseek <key>，或设置 DEEPSEEK_API_KEY";
 
 interface BalanceResponse {
   is_available?: boolean;
@@ -20,10 +21,10 @@ async function resolveKey(): Promise<{ key: string; source: string } | undefined
   if (env) return { key: env, source: "环境变量 DEEPSEEK_API_KEY" };
 
   const auth = await opencodeAuthKey("deepseek");
-  if (auth) return { key: auth, source: "~/.local/share/opencode/auth.json" };
+  if (auth) return { key: auth.key, source: auth.source };
 
   const account = await opencodeAccountKey("deepseek");
-  if (account) return { key: account, source: "~/.local/share/opencode/account.json" };
+  if (account) return { key: account.key, source: account.source };
 
   return undefined;
 }
@@ -32,7 +33,7 @@ async function detectDeepSeek(): Promise<CredentialStatus> {
   const found = await resolveKey();
   return found
     ? { available: true, source: found.source }
-    : { available: false, hint: "设置 DEEPSEEK_API_KEY" };
+    : { available: false, hint: AUTH_HINT };
 }
 
 function parseBalances(body: BalanceResponse): BalanceInfo[] {
@@ -58,7 +59,7 @@ async function fetchDeepSeek(signal?: AbortSignal): Promise<ProviderSnapshot> {
       providerName: "DeepSeek",
       windows: [],
       status: "auth",
-      message: "未找到 DeepSeek API Key。设置 DEEPSEEK_API_KEY。",
+      message: AUTH_HINT,
       fetchedAt: new Date(),
     };
   }
@@ -100,7 +101,7 @@ async function fetchDeepSeek(signal?: AbortSignal): Promise<ProviderSnapshot> {
 export const deepseekProvider: ProviderDef = {
   id: "deepseek",
   name: "DeepSeek",
-  authHint: "设置 DEEPSEEK_API_KEY",
+  authHint: AUTH_HINT,
   detect: detectDeepSeek,
   fetch: fetchDeepSeek,
 };

@@ -6,6 +6,7 @@ import { firstNumber, parseTime } from "../lib/parse.js";
 import { buildWindows, clampPct, emptySnapshot, type CredentialStatus, type ProviderDef, type ProviderSnapshot } from "./types.js";
 
 const DEFAULT_BASE = "https://chatgpt.com/backend-api";
+const AUTH_HINT = "Codex 使用 OAuth，请先执行 codex login（生成 ~/.codex/auth.json）";
 
 interface CodexAuthFile {
   account_id?: string;
@@ -52,7 +53,7 @@ async function detectCodex(): Promise<CredentialStatus> {
   const found = await findAuth();
   const token = found?.auth.tokens?.access_token;
   if (!found || !token) {
-    return { available: false, hint: "未找到 ~/.codex/auth.json，先执行 codex login" };
+    return { available: false, hint: AUTH_HINT };
   }
   return {
     available: true,
@@ -87,12 +88,7 @@ async function fetchCodex(signal?: AbortSignal): Promise<ProviderSnapshot> {
   const auth = found?.auth;
   const token = auth?.tokens?.access_token;
   if (!token) {
-    return emptySnapshot(
-      "codex",
-      "Codex",
-      "auth",
-      "未找到 Codex 登录凭据（~/.codex/auth.json）。先执行 codex login。",
-    );
+    return emptySnapshot("codex", "Codex", "auth", AUTH_HINT);
   }
 
   const baseUrl = (envValue("CODEX_CHATGPT_BASE_URL") ?? DEFAULT_BASE).replace(/\/+$/, "");
@@ -165,7 +161,7 @@ async function fetchCodex(signal?: AbortSignal): Promise<ProviderSnapshot> {
 export const codexProvider: ProviderDef = {
   id: "codex",
   name: "Codex",
-  authHint: "先执行 codex login 生成 ~/.codex/auth.json",
+  authHint: AUTH_HINT,
   detect: detectCodex,
   fetch: fetchCodex,
 };

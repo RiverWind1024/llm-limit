@@ -1,17 +1,11 @@
 import { chmod, mkdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 
-import { home } from "./lib/credentials.js";
+import { xdgConfigHome } from "./lib/credentials.js";
 
 /** 配置目录：XDG_CONFIG_HOME/llm-limit，回退到 ~/.config/llm-limit。 */
 export function configDir(): string {
-  const xdg = process.env.XDG_CONFIG_HOME?.trim();
-  if (xdg) return path.join(xdg, "llm-limit");
-
-  const appData = process.env.APPDATA?.trim();
-  if (appData) return path.join(appData, "llm-limit");
-
-  return path.join(home(), ".config", "llm-limit");
+  return path.join(xdgConfigHome(), "llm-limit");
 }
 
 export function envFile(): string {
