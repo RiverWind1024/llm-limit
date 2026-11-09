@@ -21,13 +21,16 @@
 
 ## 支持情况
 
-| # | Provider | 5 小时 | 周 | 月 | 凭据来源 | 验证状态 |
-| --- | --- | --- | --- | --- | --- | --- |
-| 1 | MiniMax | ✅ | ✅ | — | `MINIMAX_*_API_KEY`、`~/.mmx/config.json`、opencode 凭据 | ✅ 已验证 |
-| 2 | Z.AI GLM | ✅ | ✅ | — | `ZAI_API_KEY` | ⏳ 未验证 |
-| 3 | Kimi Code | ✅ | ✅ | ✅ | `~/.kimi-code/credentials` | ⏳ 未验证 |
-| 4 | Codex | ✅ | ✅ | — | `~/.codex/auth.json` | ✅ 已验证 |
-| 5 | OpenCode Go | ✅ | ✅ | ✅ | `OPENCODE_API_KEY`、`opencode.db` | ✅ 已验证 |
+| # | Provider | 类型 | 5 小时 | 周 | 月 | 凭据来源 | 验证状态 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 1 | MiniMax | 窗口 | ✅ | ✅ | — | `MINIMAX_*_API_KEY`、`~/.mmx/config.json`、opencode 凭据 | ✅ 已验证 |
+| 2 | Z.AI GLM | 窗口 | ✅ | ✅ | — | `ZAI_API_KEY` | ⏳ 未验证 |
+| 3 | Kimi Code | 窗口 | ✅ | ✅ | ✅ | `~/.kimi-code/credentials` | ⏳ 未验证 |
+| 4 | Codex | 窗口 | ✅ | ✅ | — | `~/.codex/auth.json` | ✅ 已验证 |
+| 5 | OpenCode Go | 窗口 | ✅ | ✅ | ✅ | `OPENCODE_API_KEY`、`opencode.db` | ✅ 已验证 |
+| 6 | DeepSeek | 余额 | — | — | — | `DEEPSEEK_API_KEY`、opencode 凭据 | ✅ 已验证 |
+
+窗口型 provider 展示 5 小时 / 周 / 月配额；余额型 provider（DeepSeek）展示账户余额，没有窗口概念。
 
 “✅ 已验证”表示用真实账号跑通了请求和解析；“⏳ 未验证”表示已按接口实现，但还没有真实账号验证，实际响应有出入时可能需要微调。
 
@@ -128,7 +131,7 @@ src/
   providers/
     types.ts              统一快照模型
     registry.ts           provider 列表
-    minimax.ts / zai.ts / kimi.ts / codex.ts / opencode.ts
+    minimax.ts / zai.ts / kimi.ts / codex.ts / opencode.ts / deepseek.ts
 test/
   core.test.mjs           解析、格式化、颜色阈值等单元测试
 ```

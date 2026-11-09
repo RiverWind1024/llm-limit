@@ -4,7 +4,7 @@ import { App } from "./app.js";
 import { runInit } from "./init.js";
 import { findProvider, providers } from "./providers/registry.js";
 import type { ProviderSnapshot } from "./providers/types.js";
-import { progressBar } from "./lib/ui.js";
+import { formatAmount, formatMoney, progressBar } from "./lib/ui.js";
 import { formatUntil } from "./lib/time.js";
 
 const VERSION = "0.1.0";
@@ -92,6 +92,14 @@ function helpText(): string {
 function textBlock(snapshot: ProviderSnapshot): string {
   const head = `${snapshot.providerName}${snapshot.account ? ` (${snapshot.account})` : ""}`;
   const lines = [head];
+
+  for (const balance of snapshot.balances ?? []) {
+    const extras: string[] = [];
+    if (balance.granted != null) extras.push(`赠送 ${formatAmount(balance.currency, balance.granted)}`);
+    if (balance.toppedUp != null) extras.push(`充值 ${formatAmount(balance.currency, balance.toppedUp)}`);
+    lines.push(`  余额     ${formatMoney(balance)}${extras.length > 0 ? `  ${extras.join("  ")}` : ""}`);
+  }
+
   for (const win of snapshot.windows) {
     if (win.key === "monthly" && win.usedPct == null) continue;
     if (win.usedPct == null) {

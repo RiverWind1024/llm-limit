@@ -1,4 +1,26 @@
-import type { ProviderSnapshot } from "../providers/types.js";
+import type { BalanceInfo, ProviderSnapshot } from "../providers/types.js";
+
+const CURRENCY_SYMBOLS: Record<string, string> = {
+  CNY: "¥",
+  USD: "$",
+  EUR: "€",
+  JPY: "¥",
+};
+
+export function formatAmount(currency: string, amount: number): string {
+  const symbol = CURRENCY_SYMBOLS[currency] ?? `${currency} `;
+  return `${symbol}${amount.toFixed(2)}`;
+}
+
+export function formatMoney(balance: BalanceInfo): string {
+  return formatAmount(balance.currency, balance.total);
+}
+
+export function balanceColor(total: number): "green" | "yellow" | "red" {
+  if (total <= 0) return "red";
+  if (total < 5) return "yellow";
+  return "green";
+}
 
 /** 已用比例的颜色阈值：低于 WARN 为绿，WARN~CRIT 为黄，达到 CRIT 为红。 */
 export const USED_WARN_PCT = 60;

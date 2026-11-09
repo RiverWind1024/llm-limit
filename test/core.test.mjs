@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 
 import { firstNumber, parseTime } from "../dist/lib/parse.js";
 import { formatDuration, formatUntil } from "../dist/lib/time.js";
-import { barColor, progressBar, statusDot } from "../dist/lib/ui.js";
+import { barColor, balanceColor, formatAmount, formatMoney, progressBar, statusDot } from "../dist/lib/ui.js";
 import { buildWindows, clampPct } from "../dist/providers/types.js";
 
 test("parseTime 解析 unix 秒", () => {
@@ -80,4 +80,25 @@ test("buildWindows 固定顺序并补齐缺失窗口", () => {
   assert.equal(windows[0].label, "5 小时");
   assert.equal(windows[1].usedPct, null);
   assert.equal(windows[2].label, "本月");
+});
+
+test("formatMoney 按币种显示金额", () => {
+  assert.equal(formatMoney({ currency: "CNY", total: 45.04 }), "¥45.04");
+  assert.equal(formatMoney({ currency: "USD", total: 1.5 }), "$1.50");
+  assert.equal(formatMoney({ currency: "JPY", total: 100 }), "¥100.00");
+  assert.equal(formatMoney({ currency: "ABC", total: 2 }), "ABC 2.00");
+});
+
+test("formatAmount 格式化赠送/充值金额", () => {
+  assert.equal(formatAmount("CNY", 0), "¥0.00");
+  assert.equal(formatAmount("USD", 10.5), "$10.50");
+});
+
+test("balanceColor 按余额高低变色", () => {
+  assert.equal(balanceColor(0), "red");
+  assert.equal(balanceColor(-1), "red");
+  assert.equal(balanceColor(0.01), "yellow");
+  assert.equal(balanceColor(4.99), "yellow");
+  assert.equal(balanceColor(5), "green");
+  assert.equal(balanceColor(100), "green");
 });

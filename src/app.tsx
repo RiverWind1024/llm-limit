@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { providers } from "./providers/registry.js";
 import type { ProviderSnapshot } from "./providers/types.js";
 import { formatAgo, formatClock, formatUntil } from "./lib/time.js";
-import { barColor, progressBar, statusDot } from "./lib/ui.js";
+import { balanceColor, barColor, formatAmount, formatMoney, progressBar, statusDot } from "./lib/ui.js";
 
 const CACHE_TTL_MS = 30_000;
 const AUTO_REFRESH_MS = 60_000;
@@ -98,7 +98,7 @@ export function App({ initialProviderId }: AppProps) {
         <Text dimColor>{loading ? "刷新中…" : snapshot ? `更新于 ${formatClock(snapshot.fetchedAt)}` : ""}</Text>
       </Box>
 
-      <Box marginTop={1}>
+      <Box marginTop={1} flexWrap="wrap">
         {providers.map((provider, index) => {
           const dot = statusDot(snapshots[provider.id]);
           const selected = index === activeIndex;
@@ -125,31 +125,44 @@ export function App({ initialProviderId }: AppProps) {
         </Box>
 
         <Box marginTop={1} flexDirection="column">
-          {snapshot
-            ? snapshot.windows
-                .filter((win) => win.key !== "monthly" || win.usedPct != null)
-                .map((win) => {
-                if (win.usedPct == null) {
-                  return (
-                    <Box key={win.key}>
-                      <Text dimColor>{win.label.padEnd(6)} —  未返回该窗口</Text>
-                    </Box>
-                  );
-                }
+          {!snapshot ? <Text dimColor>加载中…</Text> : null}
+
+          {snapshot?.balances?.map((balance) => (
+            <Box key={balance.currency}>
+              <Text>余额     </Text>
+              <Text bold color={balanceColor(balance.total)}>
+                {formatMoney(balance)}
+              </Text>
+              {balance.granted != null || balance.toppedUp != null ? (
+                <Text dimColor>
+                  {"  "}赠送 {formatAmount(balance.currency, balance.granted ?? 0)}
+                  {"  "}充值 {formatAmount(balance.currency, balance.toppedUp ?? 0)}
+                </Text>
+              ) : null}
+            </Box>
+          ))}
+
+          {snapshot?.windows
+            .filter((win) => win.key !== "monthly" || win.usedPct != null)
+            .map((win) => {
+              if (win.usedPct == null) {
                 return (
                   <Box key={win.key}>
-                    <Text>
-                      {win.label.padEnd(6)} <Text color={barColor(win.usedPct)}>{progressBar(win.usedPct, barWidth)}</Text>
-                      {"  "}已用 {String(Math.round(win.usedPct)).padStart(3)}%{"  "}剩{" "}
-                      {String(100 - Math.round(win.usedPct)).padStart(3)}%{"  "}
-                    </Text>
-                    <Text dimColor>{win.resetAt ? `重置 ${formatUntil(win.resetAt)}` : ""}</Text>
+                    <Text dimColor>{win.label.padEnd(6)} —  未返回该窗口</Text>
                   </Box>
                 );
-              })
-            : (
-                <Text dimColor>加载中…</Text>
-              )}
+              }
+              return (
+                <Box key={win.key}>
+                  <Text>
+                    {win.label.padEnd(6)} <Text color={barColor(win.usedPct)}>{progressBar(win.usedPct, barWidth)}</Text>
+                    {"  "}已用 {String(Math.round(win.usedPct)).padStart(3)}%{"  "}剩{" "}
+                    {String(100 - Math.round(win.usedPct)).padStart(3)}%{"  "}
+                  </Text>
+                  <Text dimColor>{win.resetAt ? `重置 ${formatUntil(win.resetAt)}` : ""}</Text>
+                </Box>
+              );
+            })}
         </Box>
 
         {snapshot && snapshot.status !== "ok" && snapshot.message ? (
@@ -166,7 +179,7 @@ export function App({ initialProviderId }: AppProps) {
       </Box>
 
       <Box marginTop={1}>
-        <Text dimColor>←/→ 切换   r 刷新   1-5 直达   q 退出   自动刷新 60s</Text>
+        <Text dimColor>←/→ 切换   r 刷新   1-{providers.length} 直达   q 退出   自动刷新 60s</Text>
       </Box>
     </Box>
   );

@@ -12,6 +12,14 @@ export interface UsageWindow {
 
 export type ProviderStatus = "ok" | "warn" | "auth" | "error";
 
+/** 余额类 provider（如 DeepSeek）返回的金额，不属于 5h/周窗口。 */
+export interface BalanceInfo {
+  currency: string;
+  total: number;
+  granted?: number;
+  toppedUp?: number;
+}
+
 /** `--init` 扫描到的凭据状态，只检查本地凭据，不发网络请求。 */
 export interface CredentialStatus {
   available: boolean;
@@ -28,6 +36,8 @@ export interface ProviderSnapshot {
   providerName: string;
   account?: string;
   windows: UsageWindow[];
+  /** 余额型 provider 使用；窗口型 provider 留空。 */
+  balances?: BalanceInfo[];
   status: ProviderStatus;
   message?: string;
   fetchedAt: Date;

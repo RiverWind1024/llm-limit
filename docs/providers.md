@@ -220,6 +220,47 @@ OpenCode Go 订阅配额，官方支持用 API Key 查询（实测可用）。
 
 ---
 
+## DeepSeek
+
+余额型 provider，没有 5 小时 / 周 / 月窗口，展示账户余额。
+
+- **端点**：`GET https://api.deepseek.com/user/balance`
+- **认证**：`Authorization: Bearer <API key>`，`Accept: application/json`
+- **凭据读取顺序**
+  1. `DEEPSEEK_API_KEY`
+  2. `~/.local/share/opencode/auth.json` 的 `deepseek.key`
+  3. `~/.local/share/opencode/account.json` 里 `serviceID = "deepseek"` 的 credential
+- **Base URL**：`DEEPSEEK_BASE_URL` 可覆盖
+
+**响应（实测，2026-11）**
+
+```json
+{
+  "is_available": true,
+  "balance_infos": [
+    {
+      "currency": "CNY",
+      "total_balance": "45.04",
+      "granted_balance": "0.00",
+      "topped_up_balance": "45.04"
+    }
+  ]
+}
+```
+
+**映射**
+
+| 展示 | 字段 |
+| --- | --- |
+| 总余额 | `total_balance` |
+| 赠送 | `granted_balance` |
+| 充值 | `topped_up_balance` |
+
+- `balance_infos` 可能有多个币种，逐个展示。
+- `is_available == false` 时状态为 `warn`。
+
+---
+
 ## 备注
 
 - 除 MiniMax 和 OpenCode Go 外，其余接口都来自对应 CLI 的内部实现，厂商可能随时调整。
