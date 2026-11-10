@@ -23,4 +23,19 @@ export function findProvider(idOrName: string): ProviderDef | undefined {
   );
 }
 
+/**
+ * 按凭据可用性排序：有凭据的 provider 排在前面，组内保持原顺序。
+ * 用于交互界面让能出数据的 provider 优先展示，减少切换次数。
+ */
+export function sortProvidersByAvailability(
+  list: ProviderDef[],
+  available: ReadonlySet<string>,
+): ProviderDef[] {
+  return [...list].sort((a, b) => {
+    const aRank = available.has(a.id) ? 0 : 1;
+    const bRank = available.has(b.id) ? 0 : 1;
+    return aRank - bRank;
+  });
+}
+
 export { type ProviderDef, type ProviderSnapshot, type UsageWindow } from "./types.js";

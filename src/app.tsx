@@ -1,8 +1,8 @@
 import { Box, Text, useApp, useInput, useStdout } from "ink";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-import { providers } from "./providers/registry.js";
-import type { ProviderSnapshot } from "./providers/types.js";
+import { providers, sortProvidersByAvailability } from "./providers/registry.js";
+import type { ProviderDef, ProviderSnapshot } from "./providers/types.js";
 import { formatAgo, formatClock, formatUntil } from "./lib/time.js";
 import { balanceColor, barColor, formatAmount, formatMoney, progressBar, statusDot } from "./lib/ui.js";
 
@@ -18,11 +18,10 @@ export function App({ initialProviderId }: AppProps) {
   const { stdout } = useStdout();
   const columns = (stdout as unknown as { columns?: number })?.columns ?? process.stdout.columns ?? 80;
 
-  const initialIndex = Math.max(
-    0,
-    providers.findIndex((provider) => provider.id === initialProviderId),
-  );
-  const [activeIndex, setActiveIndex] = useState(initialIndex);
+  // 用户显式指定的 provider（id）；未指定时跟随排序后的第一位
+  const initialIdRef = useRef(providers.find((provider) => provider.id === initialProviderId)?.id);
+  const [order, setOrder] = useState<ProviderDef[]>(providers);
+  const [activeId, setActiveId] = useState(initialIdRef.current ?? "");
   const [snapshots, setSnapshots] = useState<Record<string, ProviderSnapshot>>({});
   const [loading, setLoading] = useState(false);
 
@@ -48,13 +47,40 @@ export function App({ initialProviderId }: AppProps) {
     }
   }, []);
 
-  const active = providers[activeIndex];
+  const activeIndex = activeId
+    ? Math.max(0, order.findIndex((provider) => provider.id === activeId))
+    : 0;
+  const active = order[activeIndex];
   const snapshot = snapshots[active.id];
 
   // 切换 provider 时按需拉取
   useEffect(() => {
     void load(active.id, false);
   }, [active.id, load]);
+
+  // 启动时本地检测凭据，把有凭据的 provider 排到前面（不发网络请求）
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      const statuses = await Promise.all(
+        providers.map(async (provider) => {
+          try {
+            return { id: provider.id, available: (await provider.detect()).available };
+          } catch {
+            return { id: provider.id, available: false };
+          }
+        }),
+      );
+      if (cancelled) return;
+      const available = new Set(statuses.filter((item) => item.available).map((item) => item.id));
+      const sorted = sortProvidersByAvailability(providers, available);
+      setOrder(sorted);
+      if (!initialIdRef.current) setActiveId(sorted[0].id);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   // 自动刷新当前 provider
   useEffect(() => {
@@ -70,16 +96,16 @@ export function App({ initialProviderId }: AppProps) {
       return;
     }
     if (key.leftArrow || (key.shift && key.tab) || input === "h") {
-      setActiveIndex((index) => (index - 1 + providers.length) % providers.length);
+      setActiveId(order[(activeIndex - 1 + order.length) % order.length].id);
       return;
     }
     if (key.rightArrow || key.tab || input === "l") {
-      setActiveIndex((index) => (index + 1) % providers.length);
+      setActiveId(order[(activeIndex + 1) % order.length].id);
       return;
     }
     if (/^[1-9]$/.test(input)) {
       const index = Number(input) - 1;
-      if (index < providers.length) setActiveIndex(index);
+      if (index < order.length) setActiveId(order[index].id);
       return;
     }
     if (input === "r") {
@@ -99,7 +125,7 @@ export function App({ initialProviderId }: AppProps) {
       </Box>
 
       <Box marginTop={1} flexWrap="wrap">
-        {providers.map((provider, index) => {
+        {order.map((provider, index) => {
           const dot = statusDot(snapshots[provider.id]);
           const selected = index === activeIndex;
           return (
@@ -189,7 +215,7 @@ export function App({ initialProviderId }: AppProps) {
       </Box>
 
       <Box marginTop={1}>
-        <Text dimColor>←/→ 切换   r 刷新   1-{providers.length} 直达   q 退出   自动刷新 60s</Text>
+        <Text dimColor>←/→ 切换   r 刷新   1-{order.length} 直达   q 退出   自动刷新 60s</Text>
       </Box>
     </Box>
   );

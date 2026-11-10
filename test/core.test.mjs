@@ -7,6 +7,7 @@ import { barColor, balanceColor, formatAmount, formatMoney, progressBar, statusD
 import { buildWindows, clampPct } from "../dist/providers/types.js";
 import { maskSecret, parseEnvLine } from "../dist/config.js";
 import { opencodeConfigDirs, opencodeDataDirs, stripJsonc } from "../dist/lib/credentials.js";
+import { sortProvidersByAvailability } from "../dist/providers/registry.js";
 
 test("parseTime 解析 unix 秒", () => {
   assert.equal(parseTime(1_700_000_000)?.toISOString(), "2023-11-14T22:13:20.000Z");
@@ -131,6 +132,18 @@ test("stripJsonc 去除注释和尾逗号", () => {
     url: "https://example.com/a//b",
     list: [1, 2, 3],
   });
+});
+
+test("sortProvidersByAvailability 有凭据的排前面且组内顺序稳定", () => {
+  const list = [{ id: "a" }, { id: "b" }, { id: "c" }, { id: "d" }];
+  assert.deepEqual(
+    sortProvidersByAvailability(list, new Set(["c", "a"])).map((item) => item.id),
+    ["a", "c", "b", "d"],
+  );
+  assert.deepEqual(
+    sortProvidersByAvailability(list, new Set()).map((item) => item.id),
+    ["a", "b", "c", "d"],
+  );
 });
 
 test("opencode 目录候选优先使用 XDG", () => {

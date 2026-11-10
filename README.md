@@ -7,7 +7,7 @@
 ```
  llm-limit                                                          刚刚
 
-  1 ● MiniMax   2 ○ Z.AI GLM   3 ○ Kimi Code   4 ○ Codex   5 ● OpenCode Go
+  1 ● MiniMax   2 ● OpenCode Go   3 ● DeepSeek   4 ○ Z.AI GLM   5 ○ Kimi Code   6 ○ Codex
 
  ╭──────────────────────────────────────────────────────────────────────╮
  │ MiniMax                                          minimax-cn · 刚刚    │
@@ -18,6 +18,8 @@
 
  ←/→ 切换   r 刷新   1-6 直达   q 退出   自动刷新 60s
 ```
+
+启动时会本地检测各 provider 凭据（同 `--init`，不发网络请求），把有凭据的 provider 排在前面，减少切换次数；顺序在会话内固定。
 
 ## 快速开始
 
