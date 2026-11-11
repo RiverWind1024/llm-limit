@@ -6,7 +6,7 @@ import { buildWindows, clampPct, emptySnapshot, type CredentialStatus, type Prov
 const ZAI_URL = "https://api.z.ai/api/monitor/usage/quota/limit";
 const ZHIPU_URL = "https://bigmodel.cn/api/monitor/usage/quota/limit";
 const AUTH_HINT =
-  "未找到 Z.AI 凭据。执行 llm-limit auth zai <key>，或设置 ZAI_API_KEY（中国区加 ZAI_REGION=cn）";
+  "未找到 Z.AI 凭据。执行 llm-quota auth zai <key>，或设置 ZAI_API_KEY（中国区加 ZAI_REGION=cn）";
 
 /**
  * Z.AI 的 quota 接口不在公开 API 文档里，是订阅管理页内部使用的。

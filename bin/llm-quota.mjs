@@ -6,14 +6,14 @@ import { fileURLToPath } from "node:url";
 
 const major = Number(process.versions.node.split(".")[0]);
 if (!Number.isFinite(major) || major < 20) {
-  console.error(`llm-limit 需要 Node.js 20+，当前是 ${process.versions.node}。`);
+  console.error(`llm-quota 需要 Node.js 20+，当前是 ${process.versions.node}。`);
   console.error("升级 Node 后重新执行 npm install -g .");
   process.exit(1);
 }
 
 const entry = fileURLToPath(new URL("../dist/cli.js", import.meta.url));
 if (!existsSync(entry)) {
-  console.error("llm-limit 尚未构建（缺少 dist/cli.js）。");
+  console.error("llm-quota 尚未构建（缺少 dist/cli.js）。");
   console.error("请在项目目录执行：npm install");
   process.exit(1);
 }

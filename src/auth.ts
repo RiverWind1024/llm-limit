@@ -19,10 +19,10 @@ const OAUTH_ONLY = new Set(["kimi", "codex"]);
 function usage(): string {
   return [
     "用法:",
-    "  llm-limit auth <provider> <api-key>        保存 API Key",
-    "  llm-limit auth minimax <api-key> --region cn",
-    "  llm-limit auth list                       列出已保存的 Key",
-    "  llm-limit auth remove <provider>          删除 Key",
+    "  llm-quota auth <provider> <api-key>        保存 API Key",
+    "  llm-quota auth minimax <api-key> --region cn",
+    "  llm-quota auth list                       列出已保存的 Key",
+    "  llm-quota auth remove <provider>          删除 Key",
     "",
     `provider: ${Object.keys(AUTH_TARGETS).join(", ")}`,
     `存储位置: ${envFile()}`,
@@ -86,7 +86,7 @@ async function saveKey(provider: string, key: string, region: string | undefined
   console.log(`✓ 已保存 ${target.label} 的 Key`);
   console.log(`  ${target.env} = ${maskSecret(key)}`);
   console.log(`  文件: ${envFile()}`);
-  console.log("下次运行 llm-limit 时生效。");
+  console.log("下次运行 llm-quota 时生效。");
 }
 
 export async function runAuth(args: string[]): Promise<void> {
@@ -111,7 +111,7 @@ export async function runAuth(args: string[]): Promise<void> {
 
   if (first === "remove" || first === "rm") {
     if (!second) {
-      console.error("用法: llm-limit auth remove <provider>");
+      console.error("用法: llm-quota auth remove <provider>");
       process.exitCode = 1;
       return;
     }
@@ -120,7 +120,7 @@ export async function runAuth(args: string[]): Promise<void> {
   }
 
   if (!second) {
-    console.error(`缺少 API Key。用法: llm-limit auth ${first} <api-key>`);
+    console.error(`缺少 API Key。用法: llm-quota auth ${first} <api-key>`);
     process.exitCode = 1;
     return;
   }

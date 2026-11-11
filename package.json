@@ -1,5 +1,5 @@
 {
-  "name": "llm-limit",
+  "name": "llm-quota",
   "version": "0.1.0",
   "description": "Terminal dashboard for AI coding subscription limits",
   "private": true,
@@ -19,14 +19,14 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/RiverWind1024/llm-limit.git"
+    "url": "git+https://github.com/RiverWind1024/llm-quota.git"
   },
-  "homepage": "https://github.com/RiverWind1024/llm-limit#readme",
+  "homepage": "https://github.com/RiverWind1024/llm-quota#readme",
   "bugs": {
-    "url": "https://github.com/RiverWind1024/llm-limit/issues"
+    "url": "https://github.com/RiverWind1024/llm-quota/issues"
   },
   "bin": {
-    "llm-limit": "bin/llm-limit.mjs"
+    "llm-quota": "bin/llm-quota.mjs"
   },
   "scripts": {
     "dev": "NODE_OPTIONS=--no-warnings tsx src/cli.tsx",

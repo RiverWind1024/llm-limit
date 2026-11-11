@@ -24,4 +24,4 @@ echo "==> 扫描本机凭据"
 node --no-warnings dist/cli.js --init
 
 echo
-echo "完成。现在在任意目录运行 llm-limit 即可。"
+echo "完成。现在在任意目录运行 llm-quota 即可。"

@@ -1,11 +1,11 @@
-# llm-limit
+# llm-quota
 
 查看 AI 编程工具订阅额度的终端小工具：一个界面里切换 provider，直接看 **5 小时** 和 **周** 限额，附带重置倒计时。
 
 灵感来自 [openusage](https://github.com/janekbaraniewski/openusage) 和 `mmx quota show`，但只做额度展示，不做历史统计。
 
 ```
- llm-limit                                                          刚刚
+ llm-quota                                                          刚刚
 
   1 ● MiniMax   2 ● OpenCode Go   3 ● DeepSeek   4 ○ Z.AI GLM   5 ○ Kimi Code   6 ○ Codex
 
@@ -24,12 +24,12 @@
 ## 快速开始
 
 ```bash
-git clone https://github.com/RiverWind1024/llm-limit.git
-cd llm-limit
+git clone https://github.com/RiverWind1024/llm-quota.git
+cd llm-quota
 ./install.sh
 ```
 
-脚本会安装依赖、全局安装并扫描本机凭据。完成后在任意目录运行 `llm-limit`。
+脚本会安装依赖、全局安装并扫描本机凭据。完成后在任意目录运行 `llm-quota`。
 
 不想用脚本，就手动执行：
 
@@ -41,7 +41,7 @@ npm run dev -- --init
 `--init` 会自动完成全局安装并检测各 provider 的凭据。首次配置 Key：
 
 ```bash
-llm-limit auth minimax sk-...
+llm-quota auth minimax sk-...
 ```
 
 ## 支持情况
@@ -70,17 +70,17 @@ llm-limit auth minimax sk-...
 首次在项目目录执行：
 
 ```bash
-cd ~/Project/llm-limit
+cd ~/Project/llm-quota
 npm install
 npm run dev -- --init
 ```
 
-`--init` 会做两件事：全局安装（`npm install -g`）和扫描本机各 provider 的凭据。完成后在任意目录都能直接使用 `llm-limit`。
+`--init` 会做两件事：全局安装（`npm install -g`）和扫描本机各 provider 的凭据。完成后在任意目录都能直接使用 `llm-quota`。
 
 已经安装后，想重新扫描凭据或更新全局链接：
 
 ```bash
-llm-limit --init
+llm-quota --init
 ```
 
 `prepare` 脚本会在安装时自动编译 `dist/`，不需要手动 build。
@@ -90,7 +90,7 @@ llm-limit --init
 ```bash
 npm run dev -- minimax        # 开发模式
 # 或
-node bin/llm-limit.mjs        # 使用已编译产物
+node bin/llm-quota.mjs        # 使用已编译产物
 ```
 
 程序里的凭据和配置都走绝对路径（`~/.mmx`、`~/.codex`、OpenCode 的 `$XDG_DATA_HOME` / `$XDG_CONFIG_HOME` 等），所以在哪个目录运行结果都一样。
@@ -98,12 +98,12 @@ node bin/llm-limit.mjs        # 使用已编译产物
 ## 使用
 
 ```bash
-llm-limit                    # 交互界面
-llm-limit minimax            # 直接打开 MiniMax
-llm-limit minimax --once     # 打印一次文本
-llm-limit --init             # 全局安装 + 扫描各 provider 凭据
-llm-limit --json             # 输出所有 provider 的 JSON
-llm-limit auth minimax sk-...  # 保存 API Key
+llm-quota                    # 交互界面
+llm-quota minimax            # 直接打开 MiniMax
+llm-quota minimax --once     # 打印一次文本
+llm-quota --init             # 全局安装 + 扫描各 provider 凭据
+llm-quota --json             # 输出所有 provider 的 JSON
+llm-quota auth minimax sk-...  # 保存 API Key
 ```
 
 快捷键：
@@ -119,17 +119,17 @@ llm-limit auth minimax sk-...  # 保存 API Key
 
 ## 保存 API Key
 
-用 `auth` 子命令把 key 存到 `~/.config/llm-limit/.env`（权限 0600），启动时自动加载：
+用 `auth` 子命令把 key 存到 `~/.config/llm-quota/.env`（权限 0600），启动时自动加载：
 
 ```bash
-llm-limit auth minimax sk-...                # 国际区
-llm-limit auth minimax sk-... --region cn    # 中国区
-llm-limit auth zai sk-...
-llm-limit auth opencode sk-...
-llm-limit auth deepseek sk-...
+llm-quota auth minimax sk-...                # 国际区
+llm-quota auth minimax sk-... --region cn    # 中国区
+llm-quota auth zai sk-...
+llm-quota auth opencode sk-...
+llm-quota auth deepseek sk-...
 
-llm-limit auth list                          # 查看已保存的 key（打码）
-llm-limit auth remove minimax                # 删除
+llm-quota auth list                          # 查看已保存的 key（打码）
+llm-quota auth remove minimax                # 删除
 ```
 
 真实环境变量优先级高于这个文件。Kimi / Codex 使用 OAuth，请执行各自的登录命令。
@@ -151,7 +151,7 @@ llm-limit auth remove minimax                # 删除
 
 ### 配置 MiniMax
 
-除了 `llm-limit auth minimax <key>`，也可以直接设置环境变量：
+除了 `llm-quota auth minimax <key>`，也可以直接设置环境变量：
 
 ```bash
 # 中国区（platform.minimaxi.com）

@@ -3,9 +3,9 @@ import path from "node:path";
 
 import { xdgConfigHome } from "./lib/credentials.js";
 
-/** 配置目录：XDG_CONFIG_HOME/llm-limit，回退到 ~/.config/llm-limit。 */
+/** 配置目录：XDG_CONFIG_HOME/llm-quota，回退到 ~/.config/llm-quota。 */
 export function configDir(): string {
-  return path.join(xdgConfigHome(), "llm-limit");
+  return path.join(xdgConfigHome(), "llm-quota");
 }
 
 export function envFile(): string {
@@ -67,7 +67,7 @@ async function readEntries(): Promise<Map<string, string>> {
 
 async function writeEntries(entries: Map<string, string>): Promise<void> {
   await mkdir(configDir(), { recursive: true, mode: 0o700 });
-  const lines = ["# llm-limit credentials (generated)", ...Array.from(entries, ([key, value]) => `${key}=${value}`), ""];
+  const lines = ["# llm-quota credentials (generated)", ...Array.from(entries, ([key, value]) => `${key}=${value}`), ""];
   await writeFile(envFile(), lines.join("\n"), { mode: 0o600 });
   await chmod(envFile(), 0o600);
 }

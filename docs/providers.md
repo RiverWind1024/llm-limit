@@ -2,7 +2,7 @@
 
 本文件固定每个 provider 的请求方式、认证、响应字段和映射规则。接口变动时先改这里，再改 `src/providers/`。
 
-> `llm-limit auth <provider> <key>` 会把 key 写入 `~/.config/llm-limit/.env`，启动时加载为环境变量。下面各 provider 的“环境变量”来源都包含这个文件。
+> `llm-quota auth <provider> <key>` 会把 key 写入 `~/.config/llm-quota/.env`，启动时加载为环境变量。下面各 provider 的“环境变量”来源都包含这个文件。
 
 所有 `percent` 统一按 **已用百分比**（0-100）展示；`resetsAt` 统一换算成本地时间。
 

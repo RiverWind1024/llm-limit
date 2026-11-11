@@ -8,7 +8,7 @@ import { buildWindows, clampPct, emptySnapshot, type CredentialStatus, type Prov
 const GLOBAL_BASE = "https://api.minimax.io";
 const CN_BASE = "https://api.minimax.cn";
 const AUTH_HINT =
-  "未找到 MiniMax 凭据。执行 llm-limit auth minimax <key>（中国区加 --region cn），或设置 MINIMAX_API_KEY / MINIMAX_CN_API_KEY、登录 mmx CLI";
+  "未找到 MiniMax 凭据。执行 llm-quota auth minimax <key>（中国区加 --region cn），或设置 MINIMAX_API_KEY / MINIMAX_CN_API_KEY、登录 mmx CLI";
 
 interface MiniMaxBucket {
   model_name?: string;

@@ -149,11 +149,11 @@ test("sortProvidersByAvailability 有凭据的排前面且组内顺序稳定", (
 test("opencode 目录候选优先使用 XDG", () => {
   const savedConfig = process.env.XDG_CONFIG_HOME;
   const savedData = process.env.XDG_DATA_HOME;
-  process.env.XDG_CONFIG_HOME = "/tmp/llm-limit-xdg-config";
-  process.env.XDG_DATA_HOME = "/tmp/llm-limit-xdg-data";
+  process.env.XDG_CONFIG_HOME = "/tmp/llm-quota-xdg-config";
+  process.env.XDG_DATA_HOME = "/tmp/llm-quota-xdg-data";
   try {
-    assert.equal(opencodeConfigDirs()[0], "/tmp/llm-limit-xdg-config/opencode");
-    assert.equal(opencodeDataDirs()[0], "/tmp/llm-limit-xdg-data/opencode");
+    assert.equal(opencodeConfigDirs()[0], "/tmp/llm-quota-xdg-config/opencode");
+    assert.equal(opencodeDataDirs()[0], "/tmp/llm-quota-xdg-data/opencode");
   } finally {
     if (savedConfig === undefined) delete process.env.XDG_CONFIG_HOME;
     else process.env.XDG_CONFIG_HOME = savedConfig;

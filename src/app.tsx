@@ -119,7 +119,7 @@ export function App({ initialProviderId }: AppProps) {
     <Box flexDirection="column" paddingX={1}>
       <Box justifyContent="space-between">
         <Text bold color="cyan">
-          llm-limit
+          llm-quota
         </Text>
         <Text dimColor>{loading ? "刷新中…" : snapshot ? `更新于 ${formatClock(snapshot.fetchedAt)}` : ""}</Text>
       </Box>

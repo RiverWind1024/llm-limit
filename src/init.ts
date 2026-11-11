@@ -69,15 +69,15 @@ async function scan(): Promise<number> {
 }
 
 export async function runInit(): Promise<void> {
-  console.log("llm-limit 初始化\n");
+  console.log("llm-quota 初始化\n");
   await installGlobally();
 
   const available = await scan();
   console.log(`\n可用 ${available}/${providers.length} 个 provider。`);
 
   if (available === 0) {
-    console.log("先配置至少一个凭据，然后运行 llm-limit。");
+    console.log("先配置至少一个凭据，然后运行 llm-quota。");
     return;
   }
-  console.log("运行 llm-limit 开始使用；用 llm-limit <provider> --once 验证单个 provider。");
+  console.log("运行 llm-quota 开始使用；用 llm-quota <provider> --once 验证单个 provider。");
 }

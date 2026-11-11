@@ -4,7 +4,7 @@ import { firstNumber } from "../lib/parse.js";
 import type { BalanceInfo, CredentialStatus, ProviderDef, ProviderSnapshot } from "./types.js";
 
 const DEFAULT_BASE = "https://api.deepseek.com";
-const AUTH_HINT = "未找到 DeepSeek API Key。执行 llm-limit auth deepseek <key>，或设置 DEEPSEEK_API_KEY";
+const AUTH_HINT = "未找到 DeepSeek API Key。执行 llm-quota auth deepseek <key>，或设置 DEEPSEEK_API_KEY";
 
 interface BalanceResponse {
   is_available?: boolean;

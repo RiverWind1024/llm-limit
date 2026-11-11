@@ -105,7 +105,7 @@ export const providers: ProviderDef[] = [
 - **重置时间用 `Date`**：`parseTime()` 兼容 unix 秒、unix 毫秒和 ISO 字符串。
 - **不要抛异常**：网络错误、鉴权失败都要 catch 住，返回 `status: "auth" | "error"` 的快照，UI 才能继续切换其他 provider。
 - **`detect()` 只查本地凭据**：不发网络请求，返回 `available` / `source` / `hint`。`--init` 的扫描结果就来自它。
-- **支持 API Key 的 provider**：在 `src/auth.ts` 的 `AUTH_TARGETS` 里加一行映射（provider id → 环境变量名），这样 `llm-limit auth <id> <key>` 才能保存。OAuth 型 provider 不要加。
+- **支持 API Key 的 provider**：在 `src/auth.ts` 的 `AUTH_TARGETS` 里加一行映射（provider id → 环境变量名），这样 `llm-quota auth <id> <key>` 才能保存。OAuth 型 provider 不要加。
 - **余额型 provider**：如果接口返回的是金额而不是窗口配额（例如 DeepSeek），返回 `windows: []`，把金额放进 `balances`：
   ```ts
   balances: [{ currency: "CNY", total: 45.04, granted: 0, toppedUp: 45.04 }]

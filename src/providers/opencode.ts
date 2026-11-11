@@ -16,7 +16,7 @@ import { buildWindows, clampPct, emptySnapshot, type CredentialStatus, type Prov
 
 const USAGE_URL = "https://opencode.ai/zen/go/v1/usage";
 const AUTH_HINT =
-  "未找到 opencode-go 的 API Key。执行 llm-limit auth opencode <key>，或设置 OPENCODE_API_KEY；也可以先 opencode auth login opencode-go";
+  "未找到 opencode-go 的 API Key。执行 llm-quota auth opencode <key>，或设置 OPENCODE_API_KEY；也可以先 opencode auth login opencode-go";
 
 interface GoWindow {
   status?: string;
